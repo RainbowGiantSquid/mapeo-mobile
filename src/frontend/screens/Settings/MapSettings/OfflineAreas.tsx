@@ -101,7 +101,7 @@ export const OfflineAreas: NavigationStackScreenComponent = ({
                       navigation.goBack();
                     })
                     .catch(err => {
-                      console.log(err + mapId);
+                      console.log(err);
                     });
                 }
               },

@@ -126,6 +126,7 @@ export const BackgroundMaps: NavigationStackScreenComponent = ({
           <BGMapCard
             mapId={DEFAULT_MAP_ID}
             style={{ marginTop: 20 }}
+            onPress={() => {}}
             navigation={navigation}
             isSelected={styleUrl === defaultStyleUrl}
             styleUrl={defaultStyleUrl}
