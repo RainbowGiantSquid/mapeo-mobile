@@ -25,13 +25,13 @@ interface MapScreenProps {
 
 export const MapScreen = ({ navigation }: MapScreenProps) => {
   const [, { newDraft }] = useDraftObservation();
-  const { styleType, styleUrl } = useMapStyle();
+  const { styleType, styleUrl, setStyleId } = useMapStyle();
 
   const [experiments] = useExperiments();
 
   const sheetRef = React.useRef<BottomSheetMethods>(null);
 
-  const [{ observations, status }] = React.useContext(ObservationsContext);
+  const [{ observations }] = React.useContext(ObservationsContext);
   const location = React.useContext(LocationContext);
 
   const handleObservationPress = React.useCallback(
@@ -39,6 +39,8 @@ export const MapScreen = ({ navigation }: MapScreenProps) => {
       navigation.navigate("Observation", { observationId }),
     [navigation]
   );
+
+  console.log("RENDER");
 
   const handleAddPress = React.useCallback(() => {
     log("pressed add button");
@@ -48,10 +50,8 @@ export const MapScreen = ({ navigation }: MapScreenProps) => {
 
   return (
     <View style={{ flex: 1 }}>
-      {styleType === "loading" ? (
+      {styleUrl === null ? (
         <Loading />
-      ) : status === "error" ? (
-        <Text>Error</Text>
       ) : (
         <MapView
           location={location}
@@ -66,8 +66,7 @@ export const MapScreen = ({ navigation }: MapScreenProps) => {
         <React.Fragment>
           <BGMapButton openSheet={() => sheetRef.current?.snapTo(1)} />
           <BGMapSelector
-            // To do: Set map style here (useMapStyle needs to be updated)
-            onMapSelected={() => {}}
+            onMapSelected={setStyleId}
             ref={sheetRef}
             closeSheet={() => sheetRef.current?.close()}
           />
