@@ -15,12 +15,13 @@ import { LIGHT_GREY, MEDIUM_BLUE, WHITE } from "../../lib/styles";
 import Button from "../../sharedComponents/Button";
 import { useNavigation } from "react-navigation-hooks";
 import LocationContext from "../../context/LocationContext";
-import { useMapStyle } from "../../hooks/useMapStyle";
 import { fallbackStyleURL } from "../../context/MapStyleContext";
 import { OfflineMapLayers } from "../../sharedComponents/OfflineMapLayers";
 import api from "../../api";
 import { DEFAULT_MAP_ID } from "../Settings/MapSettings/BackgroundMaps";
 import { useMapServerState } from "../../hooks/useMapServerState";
+import { useDefaultStyleUrl } from "../../hooks/useDefaultStyleUrl";
+import { MapServerStyle } from "./MapScreen";
 
 const m = defineMessages({
   title: {
@@ -38,31 +39,21 @@ const m = defineMessages({
   },
 });
 
-// To do: We should get this all from one central place
-// Perhaps as a Seperate Module published on npm
-interface MapServerStyle {
-  id: string;
-  url: string;
-  name?: string;
-}
 interface MapSelectorProps {
   /** Should NOT come from `useBottomSheet()` */
   closeSheet: () => void;
   onMapSelected: (id: string) => void;
+  bgMapsList: MapServerStyle[] | null;
 }
 
 /** `ref` should NOT come from - `useBottomSheet()` */
 export const BGMapSelector = React.forwardRef<
   BottomSheetMethods,
   MapSelectorProps
->(({ closeSheet, onMapSelected }, ref) => {
-  const [bgMapsList, setBgMapList] = React.useState<null | MapServerStyle[]>(
-    null
-  );
-
+>(({ closeSheet, onMapSelected, bgMapsList }, ref) => {
   const mapServerReady = useMapServerState();
 
-  const { defaultStyleUrl } = useMapStyle();
+  const defaultStyleUrl = useDefaultStyleUrl();
 
   const { navigate } = useNavigation();
 
@@ -72,17 +63,6 @@ export const BGMapSelector = React.forwardRef<
   ]);
 
   const { formatMessage: t } = useIntl();
-
-  React.useEffect(() => {
-    async function getListStyles() {
-      console.log("Getting list of styles");
-      return setBgMapList(await api.maps.getStyleList());
-    }
-
-    if (mapServerReady) {
-      getListStyles();
-    }
-  }, [mapServerReady]);
 
   return (
     <BottomSheet
@@ -112,6 +92,7 @@ export const BGMapSelector = React.forwardRef<
             <React.Fragment>
               <TouchableOpacity
                 onPress={() => {
+                  closeSheet();
                   navigate("MapSettings");
                 }}
               >

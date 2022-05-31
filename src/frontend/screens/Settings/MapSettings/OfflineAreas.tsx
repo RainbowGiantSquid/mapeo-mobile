@@ -3,6 +3,7 @@ import { defineMessages, FormattedMessage, useIntl } from "react-intl";
 import { ScrollView, StyleSheet } from "react-native";
 import { NavigationStackScreenComponent } from "react-navigation-stack";
 import api from "../../../api";
+import { useMapStyle } from "../../../hooks/useMapStyle";
 
 import { RED } from "../../../lib/styles";
 import {
@@ -15,6 +16,7 @@ import HeaderTitle from "../../../sharedComponents/HeaderTitle";
 import { ErrorIcon } from "../../../sharedComponents/icons";
 import Loading from "../../../sharedComponents/Loading";
 import { OfflineAreaCard } from "../../../sharedComponents/OfflineAreaCard";
+import { DEFAULT_MAP_ID } from "./BackgroundMaps";
 
 const m = defineMessages({
   title: {
@@ -59,6 +61,8 @@ export const OfflineAreas: NavigationStackScreenComponent = ({
 
   const { getParam } = navigation;
 
+  const { styleId, setStyleId } = useMapStyle();
+
   return (
     <React.Fragment>
       {/* <ScrollView style={[styles.container]}>
@@ -92,17 +96,15 @@ export const OfflineAreas: NavigationStackScreenComponent = ({
               variation: "filled",
               dangerous: true,
 
-              onPress: () => {
+              onPress: async () => {
                 const mapId = getParam("mapId", "");
                 if (typeof mapId === "string") {
-                  api.maps
-                    .deleteStyle(mapId)
-                    .then(() => {
-                      navigation.goBack();
-                    })
-                    .catch(err => {
-                      console.log(err);
-                    });
+                  try {
+                    await api.maps.deleteStyle(mapId);
+                    if (styleId === mapId) setStyleId(DEFAULT_MAP_ID);
+                  } catch (err) {
+                    console.log("FAILED TO DELETE", err);
+                  }
                 }
               },
 
